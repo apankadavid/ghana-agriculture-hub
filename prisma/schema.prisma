@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  FARMER
+  BUYER
+  SUPPLIER
+  MACHINERY_OWNER
+  SERVICE_PROVIDER
+  TRANSPORTER
+  AGRONOMIST
+  WORKER
+  BUSINESS
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String?
+  phone        String?  @unique
+  createdAt    DateTime @default(now())
+
+  profile Profile?
+
+  @@map("users")
+}
+
+model Profile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  displayName String
+  role        Role
+  region      String
+  city        String?
+  bio         String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  listings    Listing[]
+
+  @@map("profiles")
+}
+enum ListingType {
+  OFFER
+  REQUEST
+}
+
+enum ListingCategory {
+  PRODUCT
+  INPUT
+  MACHINERY
+  SERVICE
+  JOB
+}
+
+enum ListingStatus {
+  ACTIVE
+  INACTIVE
+  FULFILLED
+}
+
+model Listing {
+  id          String          @id @default(cuid())
+  profileId   String
+  profile     Profile         @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  type        ListingType
+  category    ListingCategory
+  status      ListingStatus   @default(ACTIVE)
+
+  title       String
+  description String?
+
+  price       Decimal?        @db.Decimal(12, 2)
+  priceUnit   String?
+
+  quantity      Decimal?      @db.Decimal(12, 2)
+  quantityUnit  String?
+
+  availability  String?
+  qualityGrade  String?
+  paymentTerms  String?
+
+  region      String
+  city        String?
+
+  images      ListingImage[]
+
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@map("listings")
+  @@index([category, status])
+  @@index([region])
+}
+
+model ListingImage {
+  id        String   @id @default(cuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  url       String
+  sortOrder Int      @default(0)
+
+  @@map("listing_images")
+}
