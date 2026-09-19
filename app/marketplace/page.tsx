@@ -13,36 +13,52 @@ const CATEGORIES = [
 export default async function MarketplacePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string; region?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; region?: string; page?: string }>;
 }) {
   const params = await searchParams;
   const q = params.q ?? "";
   const category = params.category ?? "";
   const region = params.region ?? "";
+  const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
+  const pageSize = 12;
 
-  const listings = await prisma.listing.findMany({
-    where: {
-      status: "ACTIVE",
-      ...(category ? { category: category as never } : {}),
-      ...(region ? { region: { contains: region, mode: "insensitive" } } : {}),
-      ...(q
-        ? {
-            OR: [
-              { title: { contains: q, mode: "insensitive" } },
-              { description: { contains: q, mode: "insensitive" } },
-            ],
-          }
-        : {}),
-    },
-    include: { profile: true },
-    orderBy: { createdAt: "desc" },
-    take: 30,
-  });
+  const where = {
+    status: "ACTIVE" as const,
+    ...(category ? { category: category as never } : {}),
+    ...(region ? { region: { contains: region, mode: "insensitive" as const } } : {}),
+    ...(q
+      ? {
+          OR: [
+            { title: { contains: q, mode: "insensitive" as const } },
+            { description: { contains: q, mode: "insensitive" as const } },
+          ],
+        }
+      : {}),
+  };
+
+  const [listings, totalCount] = await Promise.all([
+    prisma.listing.findMany({
+      where,
+      include: { profile: true },
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.listing.count({ where }),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   function buildUrl(overrides: Record<string, string>) {
-    const next = new URLSearchParams({ q, category, region, ...overrides });
+    const next = new URLSearchParams({
+      q,
+      category,
+      region,
+      page: String(page),
+      ...overrides,
+    });
     for (const [key, value] of [...next.entries()]) {
-      if (!value) next.delete(key);
+      if (!value || value === "1" && key === "page") next.delete(key);
     }
     return `/marketplace?${next.toString()}`;
   }
@@ -84,7 +100,7 @@ export default async function MarketplacePage({
             {CATEGORIES.map((c) => (
               <Link
                 key={c.value}
-                href={buildUrl({ category: c.value })}
+                href={buildUrl({ category: c.value, page: "1" })}
                 className={`px-3 py-1.5 rounded text-sm font-medium border ${
                   category === c.value
                     ? "bg-green-700 text-white border-green-700"
@@ -130,6 +146,40 @@ export default async function MarketplacePage({
                 </p>
               </Link>
             ))}
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-4 mt-8">
+            {page > 1 ? (
+              <Link
+                href={buildUrl({ page: String(page - 1) })}
+                className="border rounded px-4 py-2 text-sm font-medium"
+              >
+                Previous
+              </Link>
+            ) : (
+              <span className="border rounded px-4 py-2 text-sm font-medium text-gray-300">
+                Previous
+              </span>
+            )}
+
+            <span className="text-sm text-gray-500">
+              Page {page} of {totalPages}
+            </span>
+
+            {page < totalPages ? (
+              <Link
+                href={buildUrl({ page: String(page + 1) })}
+                className="border rounded px-4 py-2 text-sm font-medium"
+              >
+                Next
+              </Link>
+            ) : (
+              <span className="border rounded px-4 py-2 text-sm font-medium text-gray-300">
+                Next
+              </span>
+            )}
           </div>
         )}
       </div>
