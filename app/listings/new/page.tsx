@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createListing } from "@/lib/actions/create-listing";
+import { uploadListingImage } from "@/lib/actions/upload-image";
 
 const CATEGORIES = [
   { value: "PRODUCT", label: "Agricultural Product" },
@@ -17,6 +18,7 @@ export default function NewListingPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [type, setType] = useState<"OFFER" | "REQUEST">("OFFER");
+  const [files, setFiles] = useState<File[]>([]);
 
   async function handleSubmit(formData: FormData) {
     setError(null);
@@ -28,6 +30,23 @@ export default function NewListingPage() {
       setError(result.error);
       setLoading(false);
       return;
+    }
+
+    for (const file of files) {
+      const imageFormData = new FormData();
+      imageFormData.append("file", file);
+      const uploadResult = await uploadListingImage(imageFormData);
+
+      if (uploadResult.success && uploadResult.url) {
+        await fetch("/api/listings/attach-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            listingId: result.listingId,
+            url: uploadResult.url,
+          }),
+        });
+      }
     }
 
     router.push(`/listings/${result.listingId}`);
@@ -200,6 +219,25 @@ export default function NewListingPage() {
               className="w-full border rounded px-3 py-2"
               placeholder="e.g. Tamale"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1" htmlFor="images">
+              Photos (optional, up to 5)
+            </label>
+            <input
+              id="images"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              onChange={(e) => setFiles(Array.from(e.target.files ?? []).slice(0, 5))}
+              className="w-full border rounded px-3 py-2"
+            />
+            {files.length > 0 && (
+              <p className="text-xs text-gray-500 mt-1">
+                {files.length} photo{files.length > 1 ? "s" : ""} selected
+              </p>
+            )}
           </div>
 
           <button
