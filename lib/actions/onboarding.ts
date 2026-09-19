@@ -28,10 +28,22 @@ export async function completeOnboarding(formData: FormData) {
     return { error: "Profile already exists." };
   }
 
-  await prisma.user.update({
-  where: { id: session.user.id },
-  data: { phone },
-   });
+  try {
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { phone },
+    });
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "P2002"
+    ) {
+      return { error: "This phone number is already registered to another account." };
+    }
+    throw error;
+  }
 
   await prisma.profile.create({
     data: {

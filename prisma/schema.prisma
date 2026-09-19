@@ -48,6 +48,7 @@ model Profile {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   listings    Listing[]
+  jobApplications JobApplication[]
 
   @@map("profiles")
 }
@@ -96,6 +97,7 @@ model Listing {
   city        String?
 
   images      ListingImage[]
+  applications JobApplication[]
 
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
@@ -114,4 +116,21 @@ model ListingImage {
   sortOrder Int      @default(0)
 
   @@map("listing_images")
+}
+
+model JobApplication {
+  id          String   @id @default(cuid())
+  listingId   String
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  applicantId String
+  applicant   Profile  @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  message     String?
+  resumeUrl   String?
+
+  createdAt   DateTime @default(now())
+
+  @@unique([listingId, applicantId])
+  @@map("job_applications")
 }

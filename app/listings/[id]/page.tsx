@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import { auth } from "@/lib/auth";
+import Link from "next/link";
+import ApplyForm from "./apply-form";
 
 export default async function ListingDetailPage({
   params,
@@ -18,6 +21,27 @@ export default async function ListingDetailPage({
 
   if (!listing) {
     notFound();
+  }
+
+  const session = await auth();
+  const isOwner = session?.user?.id === listing.profile.userId;
+
+  let alreadyApplied = false;
+  if (session?.user?.id && listing.category === "JOB" && !isOwner) {
+    const viewerProfile = await prisma.profile.findUnique({
+      where: { userId: session.user.id },
+    });
+    if (viewerProfile) {
+      const existing = await prisma.jobApplication.findUnique({
+        where: {
+          listingId_applicantId: {
+            listingId: listing.id,
+            applicantId: viewerProfile.id,
+          },
+        },
+      });
+      alreadyApplied = !!existing;
+    }
   }
 
   function toWhatsAppFormat(phone: string): string {
@@ -91,6 +115,15 @@ export default async function ListingDetailPage({
           </p>
         </div>
 
+        {isOwner && listing.category === "JOB" && (
+          <Link
+            href={`/listings/${listing.id}/applicants`}
+            className="inline-block text-sm text-green-700 font-medium mt-2"
+          >
+            View Applicants →
+          </Link>
+        )}
+
         <div className="flex gap-3 mt-4">
           {whatsappLink && (
             <a
@@ -103,6 +136,25 @@ export default async function ListingDetailPage({
             </a>
           )}
         </div>
+
+        {listing.category === "JOB" && !isOwner && (
+          <div className="mt-4">
+            {alreadyApplied ? (
+              <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded p-3">
+                You have already applied to this job.
+              </p>
+            ) : session?.user ? (
+              <ApplyForm listingId={listing.id} />
+            ) : (
+              <p className="text-sm text-gray-500">
+                <Link href="/login" className="text-green-700 font-medium">
+                  Log in
+                </Link>{" "}
+                to apply for this job.
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t text-sm">
           {listing.quantity && (
