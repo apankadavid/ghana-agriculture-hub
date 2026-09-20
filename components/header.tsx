@@ -20,12 +20,23 @@ export default async function Header() {
           <Link href="/marketplace" className="text-gray-600">
             Marketplace
           </Link>
+          <Link href="/knowledge" className="text-gray-600">
+            Knowledge
+          </Link>
+          <Link href="/weather" className="text-gray-600">
+            Weather
+          </Link>
 
           {session?.user ? (
             <>
               <Link href="/dashboard" className="text-gray-600">
                 Dashboard
               </Link>
+              {session.user.isAdmin && (
+                <Link href="/admin/articles/new" className="text-gray-600">
+                  + Article
+                </Link>
+              )}
               <Link
                 href="/listings/new"
                 className="bg-green-700 text-white rounded px-3 py-1.5 font-medium"

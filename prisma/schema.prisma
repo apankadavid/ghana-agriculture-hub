@@ -27,9 +27,11 @@ model User {
   email        String   @unique
   passwordHash String?
   phone        String?  @unique
+  isAdmin      Boolean  @default(false)
   createdAt    DateTime @default(now())
 
-  profile Profile?
+  profile  Profile?
+  articles Article[]
 
   @@map("users")
 }
@@ -133,4 +135,33 @@ model JobApplication {
 
   @@unique([listingId, applicantId])
   @@map("job_applications")
+}
+
+enum ArticleCategory {
+  CROPS
+  PLANTING
+  FERTILIZATION
+  IRRIGATION
+  PESTS_DISEASES
+  MACHINERY
+  HARVEST
+}
+
+model Article {
+  id            String          @id @default(cuid())
+  slug          String          @unique
+  title         String
+  category      ArticleCategory
+  excerpt       String
+  content       String
+  coverImageUrl String?
+  published     Boolean         @default(false)
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("articles")
 }
