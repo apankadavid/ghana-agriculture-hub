@@ -3,6 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import LogoutButton from "./logout-button";
 
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
 export default async function DashboardPage() {
   const session = await auth();
 
@@ -24,7 +31,7 @@ export default async function DashboardPage() {
         <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-xl font-semibold">
-              Good morning, {profile.displayName}!
+              {getGreeting()}, {profile.displayName}!
             </h1>
             <p className="text-gray-500 text-sm">
               {profile.role.replace("_", " ")} · {profile.region}

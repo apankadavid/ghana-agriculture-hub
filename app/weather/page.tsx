@@ -1,3 +1,5 @@
+import { headers } from "next/headers";
+
 type GeocodingResult = {
   name: string;
   latitude: number;
@@ -75,9 +77,17 @@ async function getWeather(lat: number, lon: number): Promise<WeatherResponse> {
   return res.json();
 }
 
+
+
 async function detectLocationFromIP(): Promise<string | null> {
   try {
-    const res = await fetch("http://ip-api.com/json/?fields=city,country");
+    const headersList = await headers();
+    const forwardedFor = headersList.get("x-forwarded-for");
+    const visitorIP = forwardedFor?.split(",")[0]?.trim();
+
+    if (!visitorIP) return null;
+
+    const res = await fetch(`http://ip-api.com/json/${visitorIP}?fields=city,country`);
     const data = await res.json();
     if (data.country === "Ghana" && data.city) {
       return data.city;
