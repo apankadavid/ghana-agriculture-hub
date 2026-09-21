@@ -9,8 +9,9 @@ export default async function Header() {
   return (
     <header className="bg-white border-b px-4 py-3">
       <div className="max-w-5xl mx-auto flex items-center justify-between">
-        <Link href="/" className="font-semibold text-lg text-green-700">
-          Ghana Agriculture Hub
+        <Link href="/" className="flex items-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-header.png" alt="Ghana Agriculture Hub" className="h-9 w-auto" />
         </Link>
 
         <nav className="flex items-center gap-4 text-sm">

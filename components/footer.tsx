@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Leaf } from "lucide-react";
+
 
 function FacebookIcon() {
   return (
@@ -46,15 +46,8 @@ export default function Footer() {
     <footer className="bg-green-950 text-green-100">
       <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
         <div>
-          <div className="flex items-center gap-2 font-semibold text-white mb-2">
-            <Leaf size={18} />
-            <span>
-              Ghana
-              <br />
-              Agriculture Hub
-            </span>
-          </div>
-          <p className="text-sm text-green-300">Everything Agriculture. One Place.</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/logo-full-transparent.png" alt="Ghana Agriculture Hub" className="h-14 w-auto mb-2 brightness-0 invert" />
         </div>
 
         <div>
