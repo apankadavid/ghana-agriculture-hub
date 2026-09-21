@@ -72,6 +72,8 @@ export default function Footer() {
           <ul className="space-y-2 text-sm text-green-300">
             <li><Link href="/register">Register</Link></li>
             <li><Link href="/login">Login</Link></li>
+            <li><Link href="/terms">Terms of Service</Link></li>
+            <li><Link href="/privacy">Privacy Policy</Link></li>
           </ul>
         </div>
 
