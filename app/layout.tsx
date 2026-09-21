@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import MobileTabBar from "@/components/mobile-tab-bar";
 
 export const metadata: Metadata = {
   title: "Ghana Agriculture Hub: Everything Agriculture. One Place.",
@@ -18,8 +19,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Header />
-        {children}
+        <div className="pb-16 md:pb-0">{children}</div>
         <Footer />
+        <MobileTabBar />
       </body>
     </html>
   );
