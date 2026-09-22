@@ -72,21 +72,21 @@ export default async function MarketplacePage({
             Find and connect with the right people, products and services.
           </p>
 
-          <form className="flex gap-2 mb-4" action="/marketplace">
+          <form className="flex flex-col sm:flex-row gap-2 mb-4" action="/marketplace">
             <input type="hidden" name="category" value={category} />
             <input
               type="text"
               name="q"
               defaultValue={q}
               placeholder="Search listings..."
-              className="flex-1 border rounded px-3 py-2"
+              className="flex-1 border rounded px-3 py-2 min-w-0"
             />
             <input
               type="text"
               name="region"
               defaultValue={region}
               placeholder="Location"
-              className="border rounded px-3 py-2 w-48"
+              className="border rounded px-3 py-2 w-full sm:w-48"
             />
             <button
               type="submit"

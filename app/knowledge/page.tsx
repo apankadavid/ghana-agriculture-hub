@@ -54,14 +54,14 @@ export default async function KnowledgePage({
             Better farming, better yields. A more sustainable future.
           </p>
 
-          <form className="flex gap-2 mb-4" action="/knowledge">
+          <form className="flex flex-col sm:flex-row gap-2 mb-4" action="/knowledge">
             <input type="hidden" name="category" value={category} />
             <input
               type="text"
               name="q"
               defaultValue={q}
               placeholder="Search articles..."
-              className="flex-1 border rounded px-3 py-2"
+              className="flex-1 border rounded px-3 py-2 min-w-0"
             />
             <button
               type="submit"
