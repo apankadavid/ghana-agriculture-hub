@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import Link from "next/link";
 import ApplyForm from "./apply-form";
 import FavoriteButton from "@/components/favorite-button";
+import ViewTracker from "./view-tracker";
 
 export default async function ListingDetailPage({
   params,
@@ -17,6 +18,7 @@ export default async function ListingDetailPage({
     include: {
       profile: { include: { user: true } },
       images: { orderBy: { sortOrder: "asc" } },
+      _count: { select: { views: true } },
     },
   });
 
@@ -83,6 +85,7 @@ export default async function ListingDetailPage({
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-8">
+      <ViewTracker listingId={listing.id} />
       <div className="max-w-3xl mx-auto bg-white rounded-lg shadow p-6">
         <div className="flex justify-between items-start mb-2">
           <span className="text-xs font-medium bg-green-100 text-green-800 px-2 py-1 rounded">
@@ -131,7 +134,8 @@ export default async function ListingDetailPage({
 
         <p className="text-gray-500 text-sm mt-1">
           {listing.region}
-          {listing.city ? `, ${listing.city}` : ""}
+          {listing.city ? `, ${listing.city}` : ""} · {listing._count.views}{" "}
+          view{listing._count.views !== 1 ? "s" : ""}
         </p>
 
         <div className="mt-4 pt-4 border-t">

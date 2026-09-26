@@ -107,6 +107,7 @@ model Listing {
   images      ListingImage[]
   applications JobApplication[]
   favoritedBy  Favorite[]
+  views        ListingView[]
 
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
@@ -222,4 +223,16 @@ model Favorite {
 
   @@unique([profileId, listingId])
   @@map("favorites")
+}
+
+model ListingView {
+  id        String   @id @default(cuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  visitorId String
+  viewDate  String
+  createdAt DateTime @default(now())
+
+  @@unique([listingId, visitorId, viewDate])
+  @@map("listing_views")
 }
