@@ -39,7 +39,10 @@ export default async function MarketplacePage({
   const [listings, totalCount] = await Promise.all([
     prisma.listing.findMany({
       where,
-      include: { profile: true },
+      include: {
+        profile: true,
+        images: { orderBy: { sortOrder: "asc" }, take: 1 },
+      },
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * pageSize,
       take: pageSize,
@@ -125,25 +128,35 @@ export default async function MarketplacePage({
               <Link
                 key={listing.id}
                 href={`/listings/${listing.id}`}
-                className="bg-white rounded-lg shadow p-4 hover:shadow-md transition"
+                className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition"
               >
-                <span className="text-xs font-medium bg-green-100 text-green-800 px-2 py-1 rounded">
-                  {listing.type === "OFFER" ? "For Sale" : "Wanted"}
-                </span>
-                <h3 className="font-semibold mt-2">{listing.title}</h3>
-                {listing.price && (
-                  <p className="text-green-700 font-medium text-sm mt-1">
-                    GHS {listing.price.toString()}
-                    {listing.priceUnit ? ` / ${listing.priceUnit}` : ""}
-                  </p>
+                {listing.images[0] && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={listing.images[0].url}
+                    alt={listing.title}
+                    className="w-full h-36 object-contain bg-gray-100"
+                  />
                 )}
-                <p className="text-gray-400 text-xs mt-1">
-                  {listing.region}
-                  {listing.city ? `, ${listing.city}` : ""}
-                </p>
-                <p className="text-gray-400 text-xs mt-2">
-                  {listing.profile.displayName}
-                </p>
+                <div className="p-4">
+                  <span className="text-xs font-medium bg-green-100 text-green-800 px-2 py-1 rounded">
+                    {listing.type === "OFFER" ? "For Sale" : "Wanted"}
+                  </span>
+                  <h3 className="font-semibold mt-2">{listing.title}</h3>
+                  {listing.price && (
+                    <p className="text-green-700 font-medium text-sm mt-1">
+                      GHS {listing.price.toString()}
+                      {listing.priceUnit ? ` / ${listing.priceUnit}` : ""}
+                    </p>
+                  )}
+                  <p className="text-gray-400 text-xs mt-1">
+                    {listing.region}
+                    {listing.city ? `, ${listing.city}` : ""}
+                  </p>
+                  <p className="text-gray-400 text-xs mt-2">
+                    {listing.profile.displayName}
+                  </p>
+                </div>
               </Link>
             ))}
           </div>

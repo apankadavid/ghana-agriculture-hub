@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CloudSun, Package } from "lucide-react";
 import { geocode, getWeather, detectLocationFromIP, describeWeatherCode } from "@/lib/weather";
 import LogoutButton from "./logout-button";
+import ListingControls from "./listing-controls";
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -112,30 +113,32 @@ export default async function DashboardPage() {
           ) : (
             <div className="space-y-3">
               {myListings.map((listing) => (
-                <Link
-                  key={listing.id}
-                  href={`/listings/${listing.id}`}
-                  className="flex items-center justify-between border rounded p-3"
-                >
-                  <div>
-                    <p className="text-sm font-medium">{listing.title}</p>
-                    {listing.price && (
-                      <p className="text-xs text-green-700">
-                        GHS {listing.price.toString()}
-                        {listing.priceUnit ? ` / ${listing.priceUnit}` : ""}
-                      </p>
-                    )}
-                  </div>
-                  <span
-                    className={`text-[10px] font-medium px-2 py-1 rounded ${
-                      listing.status === "ACTIVE"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-500"
-                    }`}
+                <div key={listing.id} className="border rounded p-3">
+                  <Link
+                    href={`/listings/${listing.id}`}
+                    className="flex items-center justify-between"
                   >
-                    {listing.status}
-                  </span>
-                </Link>
+                    <div>
+                      <p className="text-sm font-medium">{listing.title}</p>
+                      {listing.price && (
+                        <p className="text-xs text-green-700">
+                          GHS {listing.price.toString()}
+                          {listing.priceUnit ? ` / ${listing.priceUnit}` : ""}
+                        </p>
+                      )}
+                    </div>
+                    <span
+                      className={`text-[10px] font-medium px-2 py-1 rounded ${
+                        listing.status === "ACTIVE"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-500"
+                      }`}
+                    >
+                      {listing.status}
+                    </span>
+                  </Link>
+                  <ListingControls listingId={listing.id} currentStatus={listing.status} />
+                </div>
               ))}
             </div>
           )}

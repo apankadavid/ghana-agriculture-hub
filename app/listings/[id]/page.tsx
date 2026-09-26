@@ -72,12 +72,12 @@ export default async function ListingDetailPage({
           <span className="text-xs text-gray-400">{listing.category}</span>
         </div>
 
-         {listing.images.length > 0 && (
+        {listing.images.length > 0 && (
           <div className="mb-4">
             <img
               src={listing.images[0].url}
               alt={listing.title}
-              className="w-full h-64 object-cover rounded-lg"
+              className="w-full max-h-[32rem] object-contain bg-gray-100 rounded-lg"
             />
             {listing.images.length > 1 && (
               <div className="flex gap-2 mt-2">
@@ -86,7 +86,7 @@ export default async function ListingDetailPage({
                     key={img.id}
                     src={img.url}
                     alt={listing.title}
-                    className="w-16 h-16 object-cover rounded"
+                    className="w-16 h-16 object-contain bg-gray-100 rounded border"
                   />
                 ))}
               </div>
