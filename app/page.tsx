@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import FavoriteButton from "@/components/favorite-button";
 import {
   Wheat,
   Package,
@@ -94,7 +96,9 @@ function weatherIcon(code: number) {
 }
 
 export default async function HomePage() {
-  const [featuredListings, userCount, listingCount, regionsRaw, categoriesRaw] =
+  const session = await auth();
+
+  const [featuredListings, userCount, listingCount, regionsRaw, categoriesRaw, myProfile] =
     await Promise.all([
       prisma.listing.findMany({
         where: { status: "ACTIVE" },
@@ -114,7 +118,21 @@ export default async function HomePage() {
         select: { category: true },
         distinct: ["category"],
       }),
+      session?.user?.id
+        ? prisma.profile.findUnique({ where: { userId: session.user.id } })
+        : null,
     ]);
+
+  const myFavoriteIds = myProfile
+    ? new Set(
+        (
+          await prisma.favorite.findMany({
+            where: { profileId: myProfile.id },
+            select: { listingId: true },
+          })
+        ).map((f) => f.listingId)
+      )
+    : new Set<string>();
 
   const regionCount = regionsRaw.length;
   const categoryCount = categoriesRaw.length;
@@ -335,8 +353,12 @@ export default async function HomePage() {
                 className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition relative"
               >
                 {/* Decorative only — no favorites feature built yet */}
-                <span className="absolute top-2 right-2 z-10 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center">
-                  <Heart size={14} />
+                <span className="absolute top-2 right-2 z-10">
+                  <FavoriteButton
+                    listingId={listing.id}
+                    initiallyFavorited={myFavoriteIds.has(listing.id)}
+                    loggedIn={!!session?.user}
+                  />
                 </span>
                 <div className="h-28 bg-green-50 flex items-center justify-center text-green-700">
                   {(() => {

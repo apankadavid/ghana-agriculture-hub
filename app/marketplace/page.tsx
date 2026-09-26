@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { auth } from "@/lib/auth";
+import FavoriteButton from "@/components/favorite-button";
 
 const CATEGORIES = [
   { value: "", label: "All" },
@@ -36,7 +38,9 @@ export default async function MarketplacePage({
       : {}),
   };
 
-  const [listings, totalCount] = await Promise.all([
+  const session = await auth();
+
+  const [listings, totalCount, myProfile] = await Promise.all([
     prisma.listing.findMany({
       where,
       include: {
@@ -48,7 +52,21 @@ export default async function MarketplacePage({
       take: pageSize,
     }),
     prisma.listing.count({ where }),
+    session?.user?.id
+      ? prisma.profile.findUnique({ where: { userId: session.user.id } })
+      : null,
   ]);
+
+  const myFavoriteIds = myProfile
+    ? new Set(
+        (
+          await prisma.favorite.findMany({
+            where: { profileId: myProfile.id },
+            select: { listingId: true },
+          })
+        ).map((f) => f.listingId)
+      )
+    : new Set<string>();
 
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
@@ -130,14 +148,23 @@ export default async function MarketplacePage({
                 href={`/listings/${listing.id}`}
                 className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition"
               >
-                {listing.images[0] && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={listing.images[0].url}
-                    alt={listing.title}
-                    className="w-full h-36 object-contain bg-gray-100"
-                  />
-                )}
+                <div className="relative">
+                  {listing.images[0] && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={listing.images[0].url}
+                      alt={listing.title}
+                      className="w-full h-36 object-contain bg-gray-100"
+                    />
+                  )}
+                  <div className="absolute top-2 right-2">
+                    <FavoriteButton
+                      listingId={listing.id}
+                      initiallyFavorited={myFavoriteIds.has(listing.id)}
+                      loggedIn={!!session?.user}
+                    />
+                  </div>
+                </div>
                 <div className="p-4">
                   <span className="text-xs font-medium bg-green-100 text-green-800 px-2 py-1 rounded">
                     {listing.type === "OFFER" ? "For Sale" : "Wanted"}

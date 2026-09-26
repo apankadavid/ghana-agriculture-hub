@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
 import ApplyForm from "./apply-form";
+import FavoriteButton from "@/components/favorite-button";
 
 export default async function ListingDetailPage({
   params,
@@ -25,6 +26,24 @@ export default async function ListingDetailPage({
 
   const session = await auth();
   const isOwner = session?.user?.id === listing.profile.userId;
+
+  let isFavorited = false;
+  if (session?.user?.id) {
+    const viewerProfileForFav = await prisma.profile.findUnique({
+      where: { userId: session.user.id },
+    });
+    if (viewerProfileForFav) {
+      const fav = await prisma.favorite.findUnique({
+        where: {
+          profileId_listingId: {
+            profileId: viewerProfileForFav.id,
+            listingId: listing.id,
+          },
+        },
+      });
+      isFavorited = !!fav;
+    }
+  }
 
   let alreadyApplied = false;
   if (session?.user?.id && listing.category === "JOB" && !isOwner) {
@@ -94,7 +113,14 @@ export default async function ListingDetailPage({
           </div>
         )}
 
-        <h1 className="text-2xl font-semibold mt-2">{listing.title}</h1>
+        <div className="flex justify-between items-start mt-2">
+          <h1 className="text-2xl font-semibold">{listing.title}</h1>
+          <FavoriteButton
+            listingId={listing.id}
+            initiallyFavorited={isFavorited}
+            loggedIn={!!session?.user}
+          />
+        </div>
 
         {listing.price && (
           <p className="text-green-700 text-xl font-semibold mt-1">
