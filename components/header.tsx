@@ -39,6 +39,9 @@ export default async function Header() {
               <Link href="/favorites" className="text-gray-600">
                 Favorites
               </Link>
+              <Link href="/messages" className="text-gray-600">
+                Messages
+              </Link>
               {session.user.isAdmin && (
                 <Link href="/admin/articles/new" className="text-gray-600">
                   + Article

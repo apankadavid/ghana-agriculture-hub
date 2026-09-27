@@ -57,6 +57,9 @@ model Profile {
   listings    Listing[]
   jobApplications JobApplication[]
   favorites   Favorite[]
+  conversationsAsOwner     Conversation[] @relation("ConversationsAsOwner")
+  conversationsAsInitiator Conversation[] @relation("ConversationsAsInitiator")
+  messages                 Message[]
 
   @@map("profiles")
 }
@@ -108,6 +111,7 @@ model Listing {
   applications JobApplication[]
   favoritedBy  Favorite[]
   views        ListingView[]
+  conversations Conversation[]
 
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
@@ -235,4 +239,39 @@ model ListingView {
 
   @@unique([listingId, visitorId, viewDate])
   @@map("listing_views")
+}
+
+model Conversation {
+  id          String   @id @default(cuid())
+  listingId   String
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  ownerId     String
+  owner       Profile  @relation("ConversationsAsOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  initiatorId String
+  initiator   Profile  @relation("ConversationsAsInitiator", fields: [initiatorId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  messages    Message[]
+
+  @@unique([listingId, initiatorId])
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  senderId       String
+  sender         Profile      @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  content        String
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@map("messages")
 }

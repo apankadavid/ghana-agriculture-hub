@@ -30,6 +30,7 @@ export default function MobileNav({
             <>
               <Link href="/dashboard" onClick={() => setOpen(false)}>Dashboard</Link>
               <Link href="/favorites" onClick={() => setOpen(false)}>Favorites</Link>
+              <Link href="/messages" onClick={() => setOpen(false)}>Messages</Link>
               {isAdmin && (
                 <Link href="/admin/articles/new" onClick={() => setOpen(false)}>
                   + Article

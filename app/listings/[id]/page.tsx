@@ -5,6 +5,7 @@ import Link from "next/link";
 import ApplyForm from "./apply-form";
 import FavoriteButton from "@/components/favorite-button";
 import ViewTracker from "./view-tracker";
+import MessageButton from "./message-button";
 
 export default async function ListingDetailPage({
   params,
@@ -165,6 +166,7 @@ export default async function ListingDetailPage({
               Contact via WhatsApp
             </a>
           )}
+          {!isOwner && session?.user && <MessageButton listingId={listing.id} />}
         </div>
 
         {listing.category === "JOB" && !isOwner && (
