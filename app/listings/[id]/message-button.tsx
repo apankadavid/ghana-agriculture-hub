@@ -14,13 +14,18 @@ export default function MessageButton({ listingId }: { listingId: string }) {
   async function handleSend() {
     setLoading(true);
     setError(null);
-    const result = await startConversation(listingId, message);
-    if (result.error) {
-      setError(result.error);
+    try {
+      const result = await startConversation(listingId, message);
+      if (result.error) {
+        setError(result.error);
+        setLoading(false);
+        return;
+      }
+      router.push(`/messages/${result.conversationId}`);
+    } catch {
+      setError("Something went wrong. Please try again.");
       setLoading(false);
-      return;
     }
-    router.push(`/messages/${result.conversationId}`);
   }
 
   if (!open) {

@@ -71,24 +71,29 @@ async function sendMessageInternal(conversationId: string, senderId: string, con
     where: { id: conversationId },
   });
 
-  await pusherServer.trigger(
-    `private-conversation-${conversationId}`,
-    "new-message",
-    {
-      id: message.id,
-      content: message.content,
-      senderId: message.senderId,
-      senderName: message.sender.displayName,
-      createdAt: message.createdAt.toISOString(),
-    }
-  );
+  try {
+    await pusherServer.trigger(
+      `private-conversation-${conversationId}`,
+      "new-message",
+      {
+        id: message.id,
+        content: message.content,
+        senderId: message.senderId,
+        senderName: message.sender.displayName,
+        createdAt: message.createdAt.toISOString(),
+      }
+    );
 
-  if (conversation) {
-    const recipientId =
-      conversation.ownerId === senderId ? conversation.initiatorId : conversation.ownerId;
-    await pusherServer.trigger(`private-inbox-${recipientId}`, "new-message-notification", {
-      conversationId,
-    });
+    if (conversation) {
+      const recipientId =
+        conversation.ownerId === senderId ? conversation.initiatorId : conversation.ownerId;
+      await pusherServer.trigger(`private-inbox-${recipientId}`, "new-message-notification", {
+        conversationId,
+      });
+    }
+  } catch (error) {
+    // The message is already saved. Live delivery failing must not fail the send.
+    console.error("Pusher trigger failed:", error);
   }
 
   return message;
