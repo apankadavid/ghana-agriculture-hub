@@ -29,7 +29,10 @@ export default function ConversationThread({
   useEffect(() => {
     markConversationRead(conversationId);
 
-    const channel = pusherClient.subscribe(`private-conversation-${conversationId}`);
+    const client = pusherClient;
+    if (!client) return;
+
+    const channel = client.subscribe(`private-conversation-${conversationId}`);
 
     channel.bind("new-message", (data: Message) => {
       setMessages((prev) => {
@@ -42,7 +45,7 @@ export default function ConversationThread({
     });
 
     return () => {
-      pusherClient.unsubscribe(`private-conversation-${conversationId}`);
+      client.unsubscribe(`private-conversation-${conversationId}`);
     };
   }, [conversationId, currentProfileId]);
 
@@ -55,7 +58,11 @@ export default function ConversationThread({
     setSending(true);
     const content = draft;
     setDraft("");
-    await sendMessage(conversationId, content);
+    const result = await sendMessage(conversationId, content);
+    if (result.success && result.message) {
+      const sent = result.message;
+      setMessages((prev) => (prev.some((m) => m.id === sent.id) ? prev : [...prev, sent]));
+    }
     setSending(false);
   }
 

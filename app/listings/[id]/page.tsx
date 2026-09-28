@@ -155,7 +155,7 @@ export default async function ListingDetailPage({
           </Link>
         )}
 
-        <div className="flex gap-3 mt-4">
+        <div className="flex gap-3 mt-4 items-start">
           {whatsappLink && (
             <a
               href={whatsappLink}

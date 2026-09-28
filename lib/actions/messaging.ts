@@ -122,10 +122,19 @@ export async function sendMessage(conversationId: string, content: string) {
     return { error: "Message cannot be empty." };
   }
 
-  await sendMessageInternal(conversationId, profile.id, content.trim());
+  const message = await sendMessageInternal(conversationId, profile.id, content.trim());
   revalidatePath("/messages");
 
-  return { success: true };
+  return {
+    success: true,
+    message: {
+      id: message.id,
+      content: message.content,
+      senderId: message.senderId,
+      senderName: message.sender.displayName,
+      createdAt: message.createdAt.toISOString(),
+    },
+  };
 }
 
 export async function markConversationRead(conversationId: string) {
