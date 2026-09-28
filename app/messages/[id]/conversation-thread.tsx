@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { pusherClient } from "@/lib/pusher-client";
+import { getPusherClient } from "@/lib/pusher-client";
 import { sendMessage, markConversationRead } from "@/lib/actions/messaging";
 
 type LiveStatus = "unavailable" | "connecting" | "connected" | "error";
@@ -18,23 +18,27 @@ export default function ConversationThread({
   conversationId,
   currentProfileId,
   initialMessages,
+  pusherKey,
+  pusherCluster,
 }: {
   conversationId: string;
   currentProfileId: string;
   initialMessages: Message[];
+  pusherKey?: string;
+  pusherCluster?: string;
 }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [liveStatus, setLiveStatus] = useState<LiveStatus>(
-    pusherClient ? "connecting" : "unavailable"
+    pusherKey && pusherCluster ? "connecting" : "unavailable"
   );
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     markConversationRead(conversationId);
 
-    const client = pusherClient;
+  const client = getPusherClient(pusherKey, pusherCluster);
     if (!client) return;
 
     const channel = client.subscribe(`private-conversation-${conversationId}`);
@@ -55,7 +59,7 @@ export default function ConversationThread({
     return () => {
       client.unsubscribe(`private-conversation-${conversationId}`);
     };
-  }, [conversationId, currentProfileId]);
+    }, [conversationId, currentProfileId, pusherKey, pusherCluster]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });

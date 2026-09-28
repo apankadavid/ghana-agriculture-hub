@@ -74,6 +74,8 @@ export default async function ConversationPage({
         conversationId={conversation.id}
         currentProfileId={profile.id}
         initialMessages={initialMessages}
+        pusherKey={process.env.PUSHER_KEY}
+        pusherCluster={process.env.PUSHER_CLUSTER}
       />
     </div>
   );

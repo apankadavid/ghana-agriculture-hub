@@ -1,17 +1,21 @@
-"use client";
+﻿"use client";
 
 import PusherClient from "pusher-js";
 
-const key = process.env.NEXT_PUBLIC_PUSHER_APP_KEY;
-const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
+let client: PusherClient | null = null;
 
-export const pusherClient =
-  key && cluster
-    ? new PusherClient(key, {
-        channelAuthorization: {
-          endpoint: "/api/pusher/auth",
-          transport: "ajax",
-        },
-        cluster,
-      })
-    : null;
+export function getPusherClient(key?: string, cluster?: string) {
+  if (!key || !cluster) return null;
+
+  if (!client) {
+    client = new PusherClient(key, {
+      channelAuthorization: {
+        endpoint: "/api/pusher/auth",
+        transport: "ajax",
+      },
+      cluster,
+    });
+  }
+
+  return client;
+}
