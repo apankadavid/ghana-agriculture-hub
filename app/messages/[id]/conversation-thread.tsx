@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { pusherClient } from "@/lib/pusher-client";
 import { sendMessage, markConversationRead } from "@/lib/actions/messaging";
 
+type LiveStatus = "unavailable" | "connecting" | "connected" | "error";
+
 type Message = {
   id: string;
   content: string;
@@ -24,6 +26,9 @@ export default function ConversationThread({
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  const [liveStatus, setLiveStatus] = useState<LiveStatus>(
+    pusherClient ? "connecting" : "unavailable"
+  );
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -33,6 +38,9 @@ export default function ConversationThread({
     if (!client) return;
 
     const channel = client.subscribe(`private-conversation-${conversationId}`);
+
+    channel.bind("pusher:subscription_succeeded", () => setLiveStatus("connected"));
+    channel.bind("pusher:subscription_error", () => setLiveStatus("error"));
 
     channel.bind("new-message", (data: Message) => {
       setMessages((prev) => {
@@ -68,6 +76,18 @@ export default function ConversationThread({
 
   return (
     <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full px-4 py-4">
+      <p
+        className={`text-[11px] mb-2 ${
+          liveStatus === "connected" ? "text-green-700" : "text-amber-600"
+        }`}
+      >
+        {liveStatus === "connected" && "● Live updates on"}
+        {liveStatus === "connecting" && "○ Connecting to live updates..."}
+        {liveStatus === "unavailable" &&
+          "Live updates unavailable. Refresh to see new messages."}
+        {liveStatus === "error" &&
+          "Live updates couldn't connect. Refresh to see new messages."}
+      </p>
       <div className="flex-1 space-y-3 overflow-y-auto mb-4">
         {messages.map((m) => (
           <div
