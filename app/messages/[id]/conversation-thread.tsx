@@ -80,6 +80,11 @@ export default function ConversationThread({
 
   return (
     <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full px-4 py-4">
+      {process.env.NODE_ENV === "production" && (
+        <p className="text-[10px] text-gray-300 mb-1">
+          debug: key={pusherKey ? "present" : "missing"}, cluster={pusherCluster || "missing"}
+        </p>
+      )}
       <p
         className={`text-[11px] mb-2 ${
           liveStatus === "connected" ? "text-green-700" : "text-amber-600"
