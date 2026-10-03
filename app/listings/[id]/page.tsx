@@ -151,7 +151,7 @@ export default async function ListingDetailPage({
             href={`/listings/${listing.id}/applicants`}
             className="inline-block text-sm text-green-700 font-medium mt-2"
           >
-            View Applicants →
+            View Applicants &rarr;
           </Link>
         )}
 
