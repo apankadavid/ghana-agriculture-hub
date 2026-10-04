@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { pusherServer } from "@/lib/pusher";
 import { revalidatePath } from "next/cache";
+import { logActivity } from "./activity";
 
 export async function startConversation(listingId: string, firstMessage: string) {
   const session = await auth();
@@ -39,6 +40,8 @@ export async function startConversation(listingId: string, firstMessage: string)
     },
   });
 
+  const isNewConversation = !conversation;
+
   if (!conversation) {
     conversation = await prisma.conversation.create({
       data: {
@@ -47,6 +50,15 @@ export async function startConversation(listingId: string, firstMessage: string)
         initiatorId: profile.id,
       },
     });
+  }
+
+  if (isNewConversation) {
+    await logActivity(
+      listing.profile.id,
+      "NEW_MESSAGE",
+      `${profile.displayName} messaged you about "${listing.title}"`,
+      listingId
+    );
   }
 
   if (firstMessage.trim()) {

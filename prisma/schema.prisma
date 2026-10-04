@@ -60,6 +60,7 @@ model Profile {
   conversationsAsOwner     Conversation[] @relation("ConversationsAsOwner")
   conversationsAsInitiator Conversation[] @relation("ConversationsAsInitiator")
   messages                 Message[]
+  activities  Activity[]
 
   @@map("profiles")
 }
@@ -112,6 +113,7 @@ model Listing {
   favoritedBy  Favorite[]
   views        ListingView[]
   conversations Conversation[]
+  activities    Activity[]
 
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
@@ -274,4 +276,23 @@ model Message {
   createdAt      DateTime     @default(now())
 
   @@map("messages")
+}
+
+enum ActivityType {
+  NEW_FAVORITE
+  NEW_MESSAGE
+  NEW_JOB_APPLICATION
+}
+
+model Activity {
+  id        String       @id @default(cuid())
+  profileId String
+  profile   Profile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  type      ActivityType
+  message   String
+  listingId String?
+  listing   Listing?     @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  createdAt DateTime     @default(now())
+
+  @@map("activities")
 }

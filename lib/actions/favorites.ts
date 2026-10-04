@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { logActivity } from "./activity";
 
 export async function toggleFavorite(listingId: string) {
   const session = await auth();
@@ -37,6 +38,20 @@ export async function toggleFavorite(listingId: string) {
   await prisma.favorite.create({
     data: { profileId: profile.id, listingId },
   });
+
+  const favoritedListing = await prisma.listing.findUnique({
+    where: { id: listingId },
+    select: { title: true, profileId: true },
+  });
+  if (favoritedListing && favoritedListing.profileId !== profile.id) {
+    await logActivity(
+      favoritedListing.profileId,
+      "NEW_FAVORITE",
+      `${profile.displayName} favorited your listing "${favoritedListing.title}"`,
+      listingId
+    );
+  }
+
   revalidatePath("/marketplace");
   revalidatePath(`/listings/${listingId}`);
   revalidatePath("/favorites");

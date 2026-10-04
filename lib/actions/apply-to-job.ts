@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import cloudinary from "@/lib/cloudinary";
+import { logActivity } from "./activity";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = [
@@ -99,6 +100,13 @@ export async function applyToJob(formData: FormData) {
       resumeUrl,
     },
   });
+
+  await logActivity(
+    listing.profileId,
+    "NEW_JOB_APPLICATION",
+    `${profile.displayName} applied to your job posting "${listing.title}"`,
+    listingId
+  );
 
   return { success: true };
 }

@@ -6,6 +6,7 @@ import { CloudSun, Package } from "lucide-react";
 import { geocode, getWeather, detectLocationFromIP, describeWeatherCode } from "@/lib/weather";
 import LogoutButton from "./logout-button";
 import ListingControls from "./listing-controls";
+import RecentActivity from "@/components/recent-activity";
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -99,6 +100,8 @@ export default async function DashboardPage() {
             <p className="text-xs text-gray-400">Total Listings</p>
           </div>
         </div>
+
+        <RecentActivity profileId={profile.id} />
 
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex justify-between items-center mb-3">
