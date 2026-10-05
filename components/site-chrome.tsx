@@ -19,7 +19,7 @@ export default function SiteChrome({
   if (isDashboard) {
     return (
       <>
-        {children}
+        <div className="pb-16 md:pb-0">{children}</div>
         {mobileTabBar}
       </>
     );
