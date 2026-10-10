@@ -55,6 +55,7 @@ export default function Footer() {
           <ul className="space-y-2 text-sm text-green-300">
             <li><Link href="/">Home</Link></li>
             <li><Link href="/marketplace">Marketplace</Link></li>
+            <li><Link href="/market">Market Information</Link></li>
             <li><Link href="/knowledge">Knowledge</Link></li>
             <li><Link href="/weather">Weather</Link></li>
           </ul>

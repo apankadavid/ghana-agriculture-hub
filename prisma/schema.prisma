@@ -104,6 +104,7 @@ model Listing {
   availability  String?
   qualityGrade  String?
   paymentTerms  String?
+  commodity     String?
 
   region      String
   city        String?
@@ -121,6 +122,7 @@ model Listing {
   @@map("listings")
   @@index([category, status])
   @@index([region])
+  @@index([commodity, region])
 }
 
 model ListingImage {

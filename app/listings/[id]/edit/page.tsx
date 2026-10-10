@@ -40,6 +40,8 @@ export default async function EditListingPage({
     qualityGrade: listing.qualityGrade,
     paymentTerms: listing.paymentTerms,
     region: listing.region,
+    category: listing.category,
+    commodity: listing.commodity,
     city: listing.city,
   };
 

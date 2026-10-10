@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isValidCommodity } from "@/lib/commodities";
 
 export async function createListing(formData: FormData) {
   const session = await auth();
@@ -23,8 +24,13 @@ export async function createListing(formData: FormData) {
   const title = formData.get("title") as string;
   const region = formData.get("region") as string;
 
-  if (!type || !category || !title || !region) {
-    return { error: "Type, category, title, and region are required." };
+  const commodityRaw = (formData.get("commodity") as string) || "";
+  let commodity: string | null = null;
+  if (category === "PRODUCT") {
+    if (!isValidCommodity(commodityRaw)) {
+      return { error: 'Please choose which product this is (or "Other").' };
+    }
+    commodity = commodityRaw;
   }
 
   const priceRaw = formData.get("price") as string;
@@ -45,6 +51,7 @@ export async function createListing(formData: FormData) {
       qualityGrade: (formData.get("qualityGrade") as string) || null,
       paymentTerms: (formData.get("paymentTerms") as string) || null,
       region,
+      commodity,
       city: (formData.get("city") as string) || null,
     },
   });

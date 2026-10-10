@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateListing } from "@/lib/actions/manage-listing";
+import { COMMODITIES } from "@/lib/commodities";
 
 type Listing = {
   id: string;
@@ -16,6 +17,8 @@ type Listing = {
   qualityGrade: string | null;
   paymentTerms: string | null;
   region: string;
+  category: string;
+  commodity: string | null;
   city: string | null;
 };
 
@@ -52,6 +55,33 @@ export default function EditListingForm({ listing }: { listing: Listing }) {
 
         <form action={handleSubmit} className="space-y-4">
           <input type="hidden" name="listingId" value={listing.id} />
+
+          {listing.category === "PRODUCT" && (
+            <div>
+              <label className="block text-sm font-medium mb-1" htmlFor="commodity">
+                Which product is this?
+              </label>
+              <select
+                id="commodity"
+                name="commodity"
+                required
+                defaultValue={listing.commodity ?? ""}
+                className="w-full border rounded px-3 py-2"
+              >
+                <option value="" disabled>
+                  Select product
+                </option>
+                {COMMODITIES.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-400 mt-1">
+                Used for the market information page.
+              </p>
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium mb-1" htmlFor="title">

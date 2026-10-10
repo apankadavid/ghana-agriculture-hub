@@ -24,6 +24,9 @@ export default async function Header() {
           <Link href="/marketplace" className="text-gray-600">
             Marketplace
           </Link>
+          <Link href="/market" className="text-gray-600">
+            Market
+          </Link>
           <Link href="/knowledge" className="text-gray-600">
             Knowledge
           </Link>

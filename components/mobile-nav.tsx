@@ -23,6 +23,7 @@ export default function MobileNav({
         <div className="absolute top-full left-0 right-0 bg-white border-b shadow-lg flex flex-col p-4 gap-3 text-sm z-50">
           <Link href="/" onClick={() => setOpen(false)}>Home</Link>
           <Link href="/marketplace" onClick={() => setOpen(false)}>Marketplace</Link>
+          <Link href="/market" onClick={() => setOpen(false)}>Market</Link>
           <Link href="/knowledge" onClick={() => setOpen(false)}>Knowledge</Link>
           <Link href="/weather" onClick={() => setOpen(false)}>Weather</Link>
 

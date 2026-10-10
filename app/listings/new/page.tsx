@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createListing } from "@/lib/actions/create-listing";
 import { uploadListingImage } from "@/lib/actions/upload-image";
+import { COMMODITIES } from "@/lib/commodities";
 
 const CATEGORIES = [
   { value: "PRODUCT", label: "Agricultural Product" },
@@ -19,6 +20,7 @@ export default function NewListingPage() {
   const [loading, setLoading] = useState(false);
   const [type, setType] = useState<"OFFER" | "REQUEST">("OFFER");
   const [files, setFiles] = useState<File[]>([]);
+  const [category, setCategory] = useState("");
 
   async function handleSubmit(formData: FormData) {
     setError(null);
@@ -98,6 +100,7 @@ export default function NewListingPage() {
               name="category"
               required
               defaultValue=""
+              onChange={(e) => setCategory(e.target.value)}
               className="w-full border rounded px-3 py-2"
             >
               <option value="" disabled>
@@ -110,6 +113,32 @@ export default function NewListingPage() {
               ))}
             </select>
           </div>
+                   {category === "PRODUCT" && (
+          <div>
+              <label className="block text-sm font-medium mb-1" htmlFor="commodity">
+                Which product is this?
+              </label>
+              <select
+                id="commodity"
+                name="commodity"
+                required
+                defaultValue=""
+                className="w-full border rounded px-3 py-2"
+              >
+                <option value="" disabled>
+                  Select product
+                </option>
+                {COMMODITIES.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-400 mt-1">
+                Used for the market information page.
+              </p>
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium mb-1" htmlFor="title">
