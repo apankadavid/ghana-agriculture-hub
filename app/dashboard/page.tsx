@@ -36,6 +36,7 @@ export default async function DashboardPage() {
       prisma.listing.findMany({
         where: { profileId: profile.id },
         include: { _count: { select: { views: true } } },
+        take: 5,
         orderBy: { createdAt: "desc" },
       }),
       prisma.listingView.count({ where: { listing: { profileId: profile.id } } }),
@@ -53,7 +54,10 @@ export default async function DashboardPage() {
       }),
     ]);
 
-  const activeCount = myListings.filter((l) => l.status === "ACTIVE").length;
+  const [activeCount, totalListingCount] = await Promise.all([
+    prisma.listing.count({ where: { profileId: profile.id, status: "ACTIVE" } }),
+    prisma.listing.count({ where: { profileId: profile.id } }),
+  ]);
 
   const productAgg = await prisma.listing.aggregate({
     where: { status: "ACTIVE", category: "PRODUCT", price: { not: null } },
@@ -148,7 +152,14 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div id="listings" className="lg:col-span-2 bg-white rounded-lg shadow p-4">
               <div className="flex justify-between items-center mb-3">
-                <h2 className="font-medium text-sm">My Listings</h2>
+                <div className="flex items-baseline gap-3">
+                  <h2 className="font-medium text-sm">My Listings</h2>
+                  {totalListingCount > 5 && (
+                    <Link href="/my-listings" className="text-xs text-green-700 font-medium">
+                      View all {totalListingCount} →
+                    </Link>
+                  )}
+                </div>
                 <Link href="/listings/new" className="text-xs text-green-700 font-medium">
                   + New Listing
                 </Link>

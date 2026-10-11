@@ -6,10 +6,10 @@ import {
   MIN_LISTINGS_FOR_PRICE,
   type PriceStat,
 } from "@/lib/market";
-import { commodityLabel, isValidCommodity } from "@/lib/commodities";
+import { commodityLabel, isKnownCommodity } from "@/lib/commodities";
 
 export const metadata: Metadata = {
-  title: "Market Information — Ghana Agriculture Hub",
+  title: "Market Information: Ghana Agriculture Hub",
   description:
     "Asking prices, supply and demand for agricultural products across Ghana, based on active marketplace listings.",
 };
@@ -84,7 +84,7 @@ export default async function MarketPage({
 
   const requested = params.commodity ?? "";
   const selected =
-    isValidCommodity(requested) && available.some((c) => c.value === requested)
+    isKnownCommodity(requested) && available.some((c) => c.value === requested)
       ? requested
       : available[0]?.value ?? null;
 
@@ -95,7 +95,7 @@ export default async function MarketPage({
       <div className="max-w-5xl mx-auto">
         <h1 className="text-2xl font-semibold mb-1">Market Information</h1>
         <p className="text-gray-500 text-sm mb-4">
-          Supply, demand and asking prices for agricultural products across Ghana.
+          Supply, demand and asking prices for agricultural products and livestock across Ghana.
         </p>
 
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6 text-sm text-amber-900">

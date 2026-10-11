@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { isValidCommodity } from "@/lib/commodities";
+import { commodityOptionsFor, isValidCommodityFor } from "@/lib/commodities";
 
 async function getOwnedListing(listingId: string, userId: string) {
   const listing = await prisma.listing.findUnique({
@@ -34,10 +34,15 @@ export async function updateListing(formData: FormData) {
   const region = formData.get("region") as string;
 
   let commodity: string | null = null;
-  if (listing.category === "PRODUCT") {
+  if (commodityOptionsFor(listing.category)) {
     const commodityRaw = (formData.get("commodity") as string) || "";
-    if (!isValidCommodity(commodityRaw)) {
-      return { error: 'Please choose which product this is (or "Other").' };
+    if (!isValidCommodityFor(listing.category, commodityRaw)) {
+      return {
+        error:
+          listing.category === "LIVESTOCK"
+            ? 'Please choose which animal this is (or "Other").'
+            : 'Please choose which product this is (or "Other").',
+      };
     }
     commodity = commodityRaw;
   }

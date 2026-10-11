@@ -9,6 +9,7 @@ const CATEGORIES = [
   { value: "INPUT", label: "Inputs" },
   { value: "MACHINERY", label: "Machinery" },
   { value: "SERVICE", label: "Services" },
+  { value: "LIVESTOCK", label: "Livestock" },
   { value: "JOB", label: "Jobs" },
 ];
 

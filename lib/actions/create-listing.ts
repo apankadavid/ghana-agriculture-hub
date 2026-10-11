@@ -2,7 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { isValidCommodity } from "@/lib/commodities";
+import { commodityOptionsFor, isValidCommodityFor } from "@/lib/commodities";
 
 export async function createListing(formData: FormData) {
   const session = await auth();
@@ -26,9 +26,14 @@ export async function createListing(formData: FormData) {
 
   const commodityRaw = (formData.get("commodity") as string) || "";
   let commodity: string | null = null;
-  if (category === "PRODUCT") {
-    if (!isValidCommodity(commodityRaw)) {
-      return { error: 'Please choose which product this is (or "Other").' };
+  if (commodityOptionsFor(category)) {
+    if (!isValidCommodityFor(category, commodityRaw)) {
+      return {
+        error:
+          category === "LIVESTOCK"
+            ? 'Please choose which animal this is (or "Other").'
+            : 'Please choose which product this is (or "Other").',
+      };
     }
     commodity = commodityRaw;
   }

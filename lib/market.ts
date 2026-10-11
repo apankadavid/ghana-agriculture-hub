@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { MARKET_EXCLUDED } from "@/lib/commodities";
 
 export const MIN_LISTINGS_FOR_PRICE = 3;
 
@@ -22,6 +23,13 @@ const UNIT_ALIASES: Record<string, string> = {
   bags: "bag",
   sack: "bag",
   sacks: "bag",
+  head: "head",
+  heads: "head",
+  "head of cattle": "head",
+  animal: "head",
+  animals: "head",
+  bird: "bird",
+  birds: "bird",
 };
 
 export function normalizeUnit(raw: string): string {
@@ -144,7 +152,11 @@ function buildStat(key: string, label: string, rows: Row[]): RegionStat {
 
 export async function getMarketData(commodity: string): Promise<MarketData> {
   const listings = await prisma.listing.findMany({
-    where: { status: "ACTIVE", category: "PRODUCT", commodity },
+    where: {
+      status: "ACTIVE",
+      category: { in: ["PRODUCT", "LIVESTOCK"] },
+      commodity,
+    },
     select: {
       type: true,
       region: true,
@@ -196,14 +208,14 @@ export async function getCommoditiesWithListings() {
     by: ["commodity"],
     where: {
       status: "ACTIVE",
-      category: "PRODUCT",
+      category: { in: ["PRODUCT", "LIVESTOCK"] },
       commodity: { not: null },
     },
     _count: { _all: true },
   });
 
   return groups
-    .filter((g) => g.commodity && g.commodity !== "other")
+    .filter((g) => g.commodity && !MARKET_EXCLUDED.includes(g.commodity))
     .map((g) => ({ value: g.commodity as string, count: g._count._all }))
     .sort((a, b) => b.count - a.count);
 }

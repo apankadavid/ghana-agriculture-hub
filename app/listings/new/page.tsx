@@ -4,13 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createListing } from "@/lib/actions/create-listing";
 import { uploadListingImage } from "@/lib/actions/upload-image";
-import { COMMODITIES } from "@/lib/commodities";
+import { commodityOptionsFor } from "@/lib/commodities";
 
 const CATEGORIES = [
   { value: "PRODUCT", label: "Agricultural Product" },
   { value: "INPUT", label: "Input / Supply" },
   { value: "MACHINERY", label: "Machinery" },
   { value: "SERVICE", label: "Service" },
+  { value: "LIVESTOCK", label: "Livestock" },
   { value: "JOB", label: "Job" },
 ];
 
@@ -113,12 +114,13 @@ export default function NewListingPage() {
               ))}
             </select>
           </div>
-                   {category === "PRODUCT" && (
-          <div>
+          {commodityOptionsFor(category) && (
+            <div>
               <label className="block text-sm font-medium mb-1" htmlFor="commodity">
-                Which product is this?
+                {category === "LIVESTOCK" ? "Which animal is this?" : "Which product is this?"}
               </label>
               <select
+                key={category}
                 id="commodity"
                 name="commodity"
                 required
@@ -126,9 +128,9 @@ export default function NewListingPage() {
                 className="w-full border rounded px-3 py-2"
               >
                 <option value="" disabled>
-                  Select product
+                  {category === "LIVESTOCK" ? "Select animal" : "Select product"}
                 </option>
-                {COMMODITIES.map((c) => (
+                {commodityOptionsFor(category)!.map((c) => (
                   <option key={c.value} value={c.value}>
                     {c.label}
                   </option>
@@ -136,6 +138,7 @@ export default function NewListingPage() {
               </select>
               <p className="text-xs text-gray-400 mt-1">
                 Used for the market information page.
+                {category === "LIVESTOCK" && " Livestock is usually priced per head."}
               </p>
             </div>
           )}

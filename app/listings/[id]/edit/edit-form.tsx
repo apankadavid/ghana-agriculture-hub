@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateListing } from "@/lib/actions/manage-listing";
-import { COMMODITIES } from "@/lib/commodities";
-
+import { commodityOptionsFor } from "@/lib/commodities";
 type Listing = {
   id: string;
   title: string;
@@ -56,10 +55,12 @@ export default function EditListingForm({ listing }: { listing: Listing }) {
         <form action={handleSubmit} className="space-y-4">
           <input type="hidden" name="listingId" value={listing.id} />
 
-          {listing.category === "PRODUCT" && (
+          {commodityOptionsFor(listing.category) && (
             <div>
               <label className="block text-sm font-medium mb-1" htmlFor="commodity">
-                Which product is this?
+                {listing.category === "LIVESTOCK"
+                  ? "Which animal is this?"
+                  : "Which product is this?"}
               </label>
               <select
                 id="commodity"
@@ -69,9 +70,9 @@ export default function EditListingForm({ listing }: { listing: Listing }) {
                 className="w-full border rounded px-3 py-2"
               >
                 <option value="" disabled>
-                  Select product
+                  {listing.category === "LIVESTOCK" ? "Select animal" : "Select product"}
                 </option>
-                {COMMODITIES.map((c) => (
+                {commodityOptionsFor(listing.category)!.map((c) => (
                   <option key={c.value} value={c.value}>
                     {c.label}
                   </option>

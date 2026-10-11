@@ -29,6 +29,7 @@ import {
   CloudSun,
   Sun,
   TrendingUp,
+  Beef,
 } from "lucide-react";
 import {
   geocode,
@@ -42,6 +43,7 @@ const CATEGORIES = [
   { value: "INPUT", label: "Inputs & Supplies", Icon: Package },
   { value: "MACHINERY", label: "Machinery & Equipment", Icon: Tractor },
   { value: "SERVICE", label: "Services", Icon: Wrench },
+  { value: "LIVESTOCK", label: "Livestock", Icon: Beef },
   { value: "JOB", label: "Jobs", Icon: Briefcase },
 ];
 const GHANA_REGIONS = [
@@ -314,7 +316,7 @@ export default async function HomePage() {
         <p className="text-gray-500 text-sm mb-6">
           Find what you need, from farm produce to services and more.
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
           {CATEGORIES.map((c) => (
             <Link
               key={c.value}

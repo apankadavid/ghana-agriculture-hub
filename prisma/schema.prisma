@@ -75,6 +75,7 @@ enum ListingCategory {
   MACHINERY
   SERVICE
   JOB
+  LIVESTOCK
 }
 
 enum ListingStatus {
