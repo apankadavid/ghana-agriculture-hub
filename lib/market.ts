@@ -219,3 +219,31 @@ export async function getCommoditiesWithListings() {
     .map((g) => ({ value: g.commodity as string, count: g._count._all }))
     .sort((a, b) => b.count - a.count);
 }
+
+export type MarketSnapshot = {
+  commodity: string;
+  data: MarketData;
+  price: PriceStat | null;
+  highDemand: boolean;
+};
+
+// The commodity with the most active listings, summarised for the
+// homepage and dashboard cards. Same rules as the /market page.
+export async function getFeaturedMarketSnapshot(): Promise<MarketSnapshot | null> {
+  const available = await getCommoditiesWithListings();
+  if (available.length === 0) return null;
+
+  const commodity = available[0].value;
+  const data = await getMarketData(commodity);
+
+  return {
+    commodity,
+    data,
+    // Most-listed price unit for this commodity (prices are sorted by count)
+    price: data.all.prices[0] ?? null,
+    // "High demand" is a claim, so it needs enough listings behind it
+    highDemand:
+      data.totalListings >= MIN_LISTINGS_FOR_PRICE &&
+      data.all.demandCount > data.all.supplyCount,
+  };
+}

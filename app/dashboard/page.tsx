@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import MarketInsightsCard from "@/components/market-insights-card";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { CloudSun, Package, PlusCircle, Search, Briefcase, BookOpen } from "lucide-react";
@@ -59,16 +60,6 @@ export default async function DashboardPage() {
     prisma.listing.count({ where: { profileId: profile.id } }),
   ]);
 
-  const productAgg = await prisma.listing.aggregate({
-    where: { status: "ACTIVE", category: "PRODUCT", price: { not: null } },
-    _avg: { price: true },
-  });
-  const productSupply = await prisma.listing.count({
-    where: { status: "ACTIVE", category: "PRODUCT", type: "OFFER" },
-  });
-  const productDemand = await prisma.listing.count({
-    where: { status: "ACTIVE", category: "PRODUCT", type: "REQUEST" },
-  });
 
   let weatherWidget: { city: string; temp: number; condition: string } | null = null;
   try {
@@ -228,25 +219,7 @@ export default async function DashboardPage() {
           <RecentActivity profileId={profile.id} />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white rounded-lg shadow p-4">
-              <h3 className="font-medium text-sm mb-2">Market Insights — Products</h3>
-              {productAgg._avg.price ? (
-                <>
-                  <p className="text-[11px] text-gray-400">Avg. Asking Price</p>
-                  <p className="text-lg font-semibold mb-2">
-                    GHS {Math.round(Number(productAgg._avg.price))} / MT
-                  </p>
-                  <div className="flex gap-6 text-xs text-gray-500">
-                    <span>Supply: {productSupply} listings</span>
-                    <span>Demand: {productDemand} listings</span>
-                  </div>
-                </>
-              ) : (
-                <p className="text-sm text-gray-400">
-                  Not enough product listings yet for insights.
-                </p>
-              )}
-            </div>
+            <MarketInsightsCard />
 
             <div className="bg-white rounded-lg shadow p-4">
               <h3 className="font-medium text-sm mb-2">Featured Knowledge</h3>

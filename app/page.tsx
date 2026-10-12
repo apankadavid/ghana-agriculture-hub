@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import MarketInsightsCard from "@/components/market-insights-card";
 import { auth } from "@/lib/auth";
 import FavoriteButton from "@/components/favorite-button";
 import {
@@ -28,7 +29,6 @@ import {
   CloudRain,
   CloudSun,
   Sun,
-  TrendingUp,
   Beef,
 } from "lucide-react";
 import {
@@ -139,16 +139,6 @@ export default async function HomePage() {
   const regionCount = regionsRaw.length;
   const categoryCount = categoriesRaw.length;
 
-  const productAgg = await prisma.listing.aggregate({
-    where: { status: "ACTIVE", category: "PRODUCT", price: { not: null } },
-    _avg: { price: true },
-  });
-  const productSupply = await prisma.listing.count({
-    where: { status: "ACTIVE", category: "PRODUCT", type: "OFFER" },
-  });
-  const productDemand = await prisma.listing.count({
-    where: { status: "ACTIVE", category: "PRODUCT", type: "REQUEST" },
-  });
 
   let weatherWidget: {
     city: string;
@@ -524,80 +514,7 @@ export default async function HomePage() {
           )}
         </div>
 
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="font-medium text-sm">Market Insights</h3>
-            <Link href="/marketplace?category=PRODUCT" className="text-xs text-green-700 font-medium">
-              View All →
-            </Link>
-          </div>
-
-          {productAgg._avg.price ? (
-            <>
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <p className="text-sm font-medium">Products</p>
-                  <p className="text-xs text-gray-400">Across all regions</p>
-                </div>
-                {productDemand > productSupply && (
-                  <span className="bg-amber-100 text-amber-800 text-[10px] font-medium px-2 py-1 rounded">
-                    High Demand
-                  </span>
-                )}
-              </div>
-
-              <p className="text-[11px] text-gray-400">Avg. Asking Price</p>
-              <p className="text-lg font-semibold mb-2">
-                GHS {Math.round(Number(productAgg._avg.price))} / MT
-              </p>
-
-              <div className="flex gap-6 text-xs mb-3">
-                <div>
-                  <p className="text-gray-400">Supply Listed</p>
-                  <p className="font-medium">{productSupply} listings</p>
-                </div>
-                <div>
-                  <p className="text-gray-400">Demand Listed</p>
-                  <p className="font-medium">{productDemand} listings</p>
-                </div>
-              </div>
-
-              {/* Simulated trend — not backed by real historical price tracking yet */}
-              <div className="border-t pt-3">
-                <div className="flex items-center gap-1 text-[10px] text-gray-400 mb-2">
-                  <TrendingUp size={12} />
-                  Simulated trend (historical tracking not yet available)
-                </div>
-                <svg viewBox="0 0 200 40" className="w-full h-10" preserveAspectRatio="none">
-                  <polyline
-                    points="0,30 30,25 60,28 90,15 120,20 150,8 180,12 200,5"
-                    fill="none"
-                    stroke="#2563eb"
-                    strokeWidth="2"
-                  />
-                </svg>
-                <div className="flex gap-1 mt-2">
-                  {["7 Days", "30 Days", "6 Months", "1 Year"].map((label, i) => (
-                    <span
-                      key={label}
-                      className={`text-[10px] px-2 py-1 rounded ${
-                        i === 0
-                          ? "bg-green-700 text-white"
-                          : "text-gray-400 border"
-                      }`}
-                    >
-                      {label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </>
-          ) : (
-            <p className="text-sm text-gray-400">
-              Not enough product listings yet for insights.
-            </p>
-          )}
-        </div>
+        <MarketInsightsCard showSimulatedTrend />
 
         <div className="relative rounded-lg overflow-hidden flex flex-col justify-end p-4 min-h-[240px]">
           <img
